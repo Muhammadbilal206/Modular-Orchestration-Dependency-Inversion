@@ -1,1 +1,16 @@
-
+{
+  "pipeline": {
+    "input_source": "csv",
+    "output_sink": "graphics"
+  },
+  "data": {
+    "file_path": "data/gdp_data.csv"
+  },
+  "analysis_parameters": {
+    "target_continent": "Asia",
+    "target_year": 2023,
+    "start_year": 2010,
+    "end_year": 2023,
+    "decline_years": 5
+  }
+}
