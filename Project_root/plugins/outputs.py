@@ -30,8 +30,7 @@ class GraphicsChartWriter:
                 
                 fig.update_layout(
                     yaxis={'categoryorder':'total ascending'},
-                    coloraxis_showscale=False,
-                    margin=dict(l=250)
+                    margin=dict(l=250, r=100)
                 )
                 fig.update_traces(textposition='outside', cliponaxis=False)
                 fig.show()
@@ -45,8 +44,7 @@ class GraphicsChartWriter:
                 chart_height = max(600, len(data) * 25)
                 
                 fig.update_layout(
-                    coloraxis_showscale=False,
-                    margin=dict(l=300, r=50, t=50, b=50),
+                    margin=dict(l=300, r=100, t=50, b=50),
                     height=chart_height
                 )
                 fig.update_traces(textposition='outside', cliponaxis=False)
