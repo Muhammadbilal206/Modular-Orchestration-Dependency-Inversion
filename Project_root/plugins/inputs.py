@@ -9,13 +9,15 @@ class CSVReader:
     def read(self, filepath: str) -> None:
         raw_data = []
         try:
-            with open(filepath, mode='r', encoding='utf-8') as file:
+            with open(filepath, mode='r', encoding='utf-8-sig') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     raw_data.append(row)
             
-            print(f"CSVReader: Successfully read {len(raw_data)} rows from {filepath}.")
+            if raw_data:
+                print(f"CSV Columns detected: {list(raw_data[0].keys())}")
             
+            print(f"CSVReader: Successfully read {len(raw_data)} rows from {filepath}.")
             self.service.execute(raw_data)
 
         except FileNotFoundError:
@@ -28,11 +30,10 @@ class JSONReader:
 
     def read(self, filepath: str) -> None:
         try:
-            with open(filepath, mode='r', encoding='utf-8') as file:
+            with open(filepath, mode='r', encoding='utf-8-sig') as file:
                 raw_data = json.load(file)
             
             print(f"JSONReader: Successfully read data from {filepath}.")
-            
             self.service.execute(raw_data)
 
         except FileNotFoundError:
