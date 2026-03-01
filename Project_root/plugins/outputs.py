@@ -18,7 +18,6 @@ class ConsoleWriter:
 
 class GraphicsChartWriter:
     def write(self, records: List[dict]) -> None:
-        # Dictionary to globally apply bold formatting and clearer names to all axes
         bold_labels = {
             "Country": "<b>Country</b>",
             "GDP": "<b>GDP (US$)</b>",
@@ -36,7 +35,6 @@ class GraphicsChartWriter:
             if not data:
                 continue
 
-            # 1 & 2. Top 10 and Bottom 10 Countries
             if metric in ["Top 10 Countries", "Bottom 10 Countries"]:
                 fig = px.bar(data, x="GDP", y="Country", orientation='h', title=metric, template="plotly_dark", 
                              color="GDP", color_continuous_scale="Sunsetdark", text_auto=".3s",
@@ -51,7 +49,6 @@ class GraphicsChartWriter:
                 fig.update_traces(textposition='outside', cliponaxis=False)
                 fig.show()
 
-            # 3. Growth Rates
             elif metric == "Growth Rates":
                 data = sorted(data, key=lambda x: x["Growth"], reverse=False)
                 
@@ -70,7 +67,6 @@ class GraphicsChartWriter:
                 fig.update_traces(textposition='outside', cliponaxis=False)
                 fig.show()
 
-            # 4. Average GDP by Continent
             elif metric == "Avg GDP Continent":
                 fig = px.line(data, x="Year", y="Average_GDP", title=metric, template="plotly_dark", 
                               markers=True, line_shape="spline", labels=bold_labels)
@@ -79,7 +75,6 @@ class GraphicsChartWriter:
                 fig.update_yaxes(title_font=dict(size=18, color="white"))
                 fig.show()
 
-            # 5. Global Trend
             elif metric == "Global Trend":
                 fig = px.line(data, x="Year", y="Total_GDP", title=metric, template="plotly_dark", 
                               markers=True, line_shape="spline", labels=bold_labels)
@@ -88,9 +83,7 @@ class GraphicsChartWriter:
                 fig.update_yaxes(title_font=dict(size=18, color="white"))
                 fig.show()
 
-            # 6. Fastest Growing Continent
             elif metric == "Fastest Growing Continent":
-                # Ensure data is in a list format for Plotly
                 if isinstance(data, dict):
                     data = [data]
                 fig = px.bar(data, x="Continent", y="Growth", title=metric, template="plotly_dark", 
@@ -101,7 +94,6 @@ class GraphicsChartWriter:
                 fig.update_traces(textposition='outside', cliponaxis=False)
                 fig.show()
 
-            # 7. Declining Countries
             elif metric == "Declining Countries":
                 countries = [item["Country"] for item in data]
                 fig = go.Figure(data=[go.Table(
@@ -117,7 +109,6 @@ class GraphicsChartWriter:
                 fig.update_layout(title=metric, template="plotly_dark", margin=dict(t=50, b=50))
                 fig.show()
 
-            # 8. Continent Contributions
             elif metric == "Continent Contributions":
                 fig = px.pie(data, names="Continent", values="Contribution_Percent", title=metric, 
                              template="plotly_dark", color_discrete_sequence=px.colors.qualitative.Pastel)
