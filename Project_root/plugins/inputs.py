@@ -14,14 +14,16 @@ class CSVReader:
                 for row in reader:
                     raw_data.append(row)
             
-            if raw_data:
-                print(f"CSV Columns detected: {list(raw_data[0].keys())}")
-            
-            print(f"CSVReader: Successfully read {len(raw_data)} rows from {filepath}.")
+            if not raw_data:
+                print(f"Warning: The CSV file at {filepath} is empty.")
+                return
+
             self.service.execute(raw_data)
 
         except FileNotFoundError:
             print(f"Error: Could not find the CSV file at {filepath}")
+        except Exception as e:
+            print(f"An unexpected error occurred reading CSV: {e}")
 
 
 class JSONReader:
@@ -33,10 +35,16 @@ class JSONReader:
             with open(filepath, mode='r', encoding='utf-8-sig') as file:
                 raw_data = json.load(file)
             
-            print(f"JSONReader: Successfully read data from {filepath}.")
+            if not isinstance(raw_data, list):
+                print("Error: JSON data must be a list of objects to be processed by the Engine.")
+                return
+
+            print(f"JSONReader: Successfully read {len(raw_data)} records.")
             self.service.execute(raw_data)
 
         except FileNotFoundError:
             print(f"Error: Could not find the JSON file at {filepath}")
         except json.JSONDecodeError:
-            print(f"Error: The file at {filepath} is not valid JSON.")
+            print(f"Error: The file at {filepath} is not a valid JSON format.")
+        except Exception as e:
+            print(f"An unexpected error occurred reading JSON: {e}")
