@@ -7,11 +7,20 @@ class TransformationEngine:
         self.params = params
 
     def execute(self, raw_data: List[Any]) -> None:
-        target_continent = self.params.get("target_continent")
-        target_year = str(self.params.get("target_year"))
-        start_year = int(self.params.get("start_year"))
-        end_year = int(self.params.get("end_year"))
-        decline_years = int(self.params.get("decline_years"))
+        if not raw_data:
+            print("Engine Error: No data received.")
+            return
+
+        target_continent = str(self.params.get("target_continent", "Unknown"))
+        target_year = str(self.params.get("target_year", "2023"))
+        
+        try:
+            start_year = int(self.params.get("start_year", 2010))
+            end_year = int(self.params.get("end_year", 2023))
+            decline_years = int(self.params.get("decline_years", 5))
+        except (ValueError, TypeError):
+            print("Engine Error: start_year, end_year, and decline_years must be valid integers in config.json.")
+            return
 
         def get_gdp(row, year):
             try:
@@ -23,7 +32,7 @@ class TransformationEngine:
             name = "Unknown"
             for key in ["Country Name", "Country", "Entity", "Territory", "country", "name", "Name"]:
                 if key in row and row[key]:
-                    name = row[key]
+                    name = str(row[key])
                     break
             
             if name != "Unknown":
@@ -33,7 +42,7 @@ class TransformationEngine:
                         return "Unknown"
             return name
 
-        continent_data = list(filter(lambda r: r.get('Continent') == target_continent, raw_data))
+        continent_data = list(filter(lambda r: str(r.get('Continent', '')) == target_continent, raw_data))
         
         mapped_gdp = list(map(lambda r: {"Country": get_name(r), "GDP": get_gdp(r, target_year)}, continent_data))
         valid_gdp = list(filter(lambda x: x["GDP"] > 0 and x["Country"] != "Unknown", mapped_gdp))
@@ -56,18 +65,18 @@ class TransformationEngine:
             gdps = list(filter(lambda x: x > 0, map(lambda r: get_gdp(r, year), continent_data)))
             return sum(gdps) / len(gdps) if gdps else 0.0
             
-        avg_gdp_continent = list(map(lambda y: {"Year": y, "Average_GDP": avg_for_year(y)}, years_range))
+        avg_gdp_continent = list(map(lambda y: {"Year": str(y), "Average_GDP": avg_for_year(y)}, years_range))
 
         def global_total_for_year(year):
             return sum(map(lambda r: get_gdp(r, year), raw_data))
 
-        global_trend = list(map(lambda y: {"Year": y, "Total_GDP": global_total_for_year(y)}, years_range))
+        global_trend = list(map(lambda y: {"Year": str(y), "Total_GDP": global_total_for_year(y)}, years_range))
 
-        continents = list(set(map(lambda r: r.get('Continent'), raw_data)))
-        valid_continents = list(filter(None, continents))
+        continents = list(set(map(lambda r: str(r.get('Continent', '')), raw_data)))
+        valid_continents = list(filter(lambda c: c and c != "None", continents))
 
         def continent_growth(cont):
-            cont_rows = list(filter(lambda r: r.get('Continent') == cont, raw_data))
+            cont_rows = list(filter(lambda r: str(r.get('Continent', '')) == cont, raw_data))
             start_total = sum(map(lambda r: get_gdp(r, start_year), cont_rows))
             end_total = sum(map(lambda r: get_gdp(r, end_year), cont_rows))
             if start_total == 0:
@@ -90,7 +99,7 @@ class TransformationEngine:
         global_total_target = global_total_for_year(target_year)
         
         def cont_contribution(cont):
-            cont_rows = list(filter(lambda r: r.get('Continent') == cont, raw_data))
+            cont_rows = list(filter(lambda r: str(r.get('Continent', '')) == cont, raw_data))
             cont_total = sum(map(lambda r: get_gdp(r, target_year), cont_rows))
             contrib = (cont_total / global_total_target * 100) if global_total_target > 0 else 0.0
             return {"Continent": cont, "Contribution_Percent": contrib}
